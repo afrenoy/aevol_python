@@ -1,15 +1,23 @@
-#!/opt/local/bin/python
+#!/usr/bin/env python
 
 import os
 import numpy
 from matplotlib.pyplot import *
 import sys
+import getopt
 
-def get_stats_exp(path):
+def get_stats_exp(path,start,end):
     allrep=[x for x in os.listdir(path) if os.path.isdir(os.path.join(path,x))]
     nbrep=len(allrep)
-    nbgen=int(open(path + '/' + allrep[0] + '/last_gener.txt','r').read())+1
-    #nbgen=15001
+    if start==None:
+        start=0
+    if end==None:
+        nbgen=int(open(path + '/' + allrep[0] + '/last_gener.txt','r').read())+1
+        end=start+nbgen-1
+    else:
+        nbgen=end-start+1
+        nbgeninfile=int(open(path + '/' + allrep[0] + '/last_gener.txt','r').read())+1
+        assert(nbgeninfile>=nbgen)
     genomesize=numpy.zeros((nbrep,nbgen))
     fitness=numpy.zeros((nbrep,nbgen))
     metabolism=numpy.zeros((nbrep,nbgen))
@@ -25,20 +33,20 @@ def get_stats_exp(path):
     for rep,replicate in enumerate(allrep):
         stat_fitness_glob=path + '/' + replicate + '/stats/stat_fitness_glob.out'
         a=numpy.loadtxt(stat_fitness_glob)
-        genomesize[rep,0:nbgen]=a[0:nbgen,3]
-        fitness[rep,0:nbgen]=a[0:nbgen,2]
-        metabolism[rep,0:nbgen]=a[0:nbgen,6]
-        secretion[rep,0:nbgen]=a[0:nbgen,9]
+        genomesize[rep,0:nbgen]=a[start:end+1,3]
+        fitness[rep,0:nbgen]=a[start:end+1,2]
+        metabolism[rep,0:nbgen]=a[start:end+1,6]
+        secretion[rep,0:nbgen]=a[start:end+1,9]
         stat_genes_glob=path + '/' + replicate + '/stats/stat_genes_glob.out'
         b=numpy.loadtxt(stat_genes_glob)
-        cRNA[rep,0:nbgen]=b[0:nbgen,1]
-        ncRNA[rep,0:nbgen]=b[0:nbgen,2]
-        fgenes[rep,0:nbgen]=b[0:nbgen,5]
-        nfgenes[rep,0:nbgen]=b[0:nbgen,6]
-        sizecRNA[rep,0:nbgen]=b[0:nbgen,3]
-        sizencRNA[rep,0:nbgen]=b[0:nbgen,4]
-        sizefgenes[rep,0:nbgen]=b[0:nbgen,7]
-        sizenfgenes[rep,0:nbgen]=b[0:nbgen,8]
+        cRNA[rep,0:nbgen]=b[start:end+1,1]
+        ncRNA[rep,0:nbgen]=b[start:end+1,2]
+        fgenes[rep,0:nbgen]=b[start:end+1,5]
+        nfgenes[rep,0:nbgen]=b[start:end+1,6]
+        sizecRNA[rep,0:nbgen]=b[start:end+1,3]
+        sizencRNA[rep,0:nbgen]=b[start:end+1,4]
+        sizefgenes[rep,0:nbgen]=b[start:end+1,7]
+        sizenfgenes[rep,0:nbgen]=b[start:end+1,8]
     return (
             numpy.mean(genomesize,0),numpy.mean(fitness,0),numpy.mean(metabolism,0),numpy.mean(secretion,0),
             numpy.mean(cRNA,0),numpy.mean(ncRNA,0),numpy.mean(fgenes,0),numpy.mean(nfgenes,0),numpy.mean(sizecRNA,0),numpy.mean(sizencRNA,0),numpy.mean(sizefgenes,0),numpy.mean(sizenfgenes,0),
@@ -46,9 +54,15 @@ def get_stats_exp(path):
             numpy.std(cRNA,0)/numpy.sqrt(nbrep),numpy.std(ncRNA,0)/numpy.sqrt(nbrep),numpy.std(fgenes,0)/numpy.sqrt(nbrep),numpy.std(nfgenes,0)/numpy.sqrt(nbrep),numpy.std(sizecRNA,0)/numpy.sqrt(nbrep),numpy.std(sizencRNA,0)/numpy.sqrt(nbrep),numpy.std(sizefgenes,0)/numpy.sqrt(nbrep),numpy.std(sizenfgenes,0)/numpy.sqrt(nbrep)
            )
 
-def output_stats(path):
-    [g,f,m,s,c,nc,fonc,nfonc,sizec,sizenc,sizefonc,sizenfonc,g_s,f_s,m_s,s_s,c_s,nc_s,fonc_s,nfonc_s,sizec_s,sizenc_s,sizefonc_s,sizenfonc_s]=get_stats_exp(path)
-    x=numpy.arange(0,len(g),1)
+def output_stats(path,start,end):
+    [g,f,m,s,c,nc,fonc,nfonc,sizec,sizenc,sizefonc,sizenfonc,g_s,f_s,m_s,s_s,c_s,nc_s,fonc_s,nfonc_s,sizec_s,sizenc_s,sizefonc_s,sizenfonc_s]=get_stats_exp(path,start,end)
+    x=None
+    if start==None:
+        x=numpy.arange(0,len(g),1)
+    elif end==None:
+        x=numpy.arange(start,start+len(g),1)
+    else:
+        x=numpy.arange(start,end+1,1)
     # genome size
     figure()
     plot(x,g)
@@ -110,5 +124,15 @@ def output_stats(path):
     fill_between(x,sizenfonc-sizenfonc_s,sizenfonc+sizenfonc_s,alpha=0.5,facecolor='blue',edgecolor='none')
     savefig(path+'/sizenonfonctionalGenes.pdf')
 
-for arg in sys.argv[1:]:
-    output_stats(arg)
+opts, args = getopt.getopt(sys.argv[1:], "s:e:", ["start", "end"])
+start=None
+end=None
+
+for o, a in opts:
+    if o=='-s':
+        start=int(a)
+    elif o=='-e':
+        end=int(a)
+    
+for arg in args:
+    output_stats(arg,start,end)
