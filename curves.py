@@ -68,61 +68,73 @@ def output_stats(path,start,end):
     plot(x,g)
     fill_between(x,g-g_s,g+g_s,alpha=0.5,facecolor='blue',edgecolor='none')
     savefig(path+'/genomesize.pdf')
+    close()
     # fitness
     figure()
     plot(x,f)
     fill_between(x,f-f_s,f+f_s,alpha=0.5,facecolor='blue',edgecolor='none')
     savefig(path+'/fitness.pdf')
+    close()
     # metabolism
     figure()
     plot(x,m)
     fill_between(x,m-m_s,m+m_s,alpha=0.5,facecolor='blue',edgecolor='none')
     savefig(path+'/metabolism.pdf')
+    close()
     # secretion
     figure()
     plot(x,s)
     fill_between(x,s-s_s,s+s_s,alpha=0.5,facecolor='blue',edgecolor='none')
     savefig(path+'/secretion.pdf')
+    close()
     # coding RNA
     figure()
     plot(x,c)
     fill_between(x,c-c_s,c+c_s,alpha=0.5,facecolor='blue',edgecolor='none')
     savefig(path+'/codingRNA.pdf')
+    close()
     # non coding RNA
     figure()
     plot(x,nc)
     fill_between(x,nc-nc_s,nc+nc_s,alpha=0.5,facecolor='blue',edgecolor='none')
     savefig(path+'/noncodingRNA.pdf')
+    close()
     # fonctional genes
     figure()
     plot(x,fonc)
     fill_between(x,fonc-fonc_s,fonc+fonc_s,alpha=0.5,facecolor='blue',edgecolor='none')
     savefig(path+'/fonctionalGenes.pdf')
+    close()
     # non fonctional genes
     figure()
     plot(x,nfonc)
     fill_between(x,nfonc-nfonc_s,nfonc+nfonc_s,alpha=0.5,facecolor='blue',edgecolor='none')
     savefig(path+'/nonfonctionalGenes.pdf')
+    close()
     # size coding RNA
     figure()
     plot(x,sizec)
     fill_between(x,sizec-sizec_s,sizec+sizec_s,alpha=0.5,facecolor='blue',edgecolor='none')
     savefig(path+'/sizecodingRNA.pdf')
+    close()
     # size non coding RNA
     figure()
     plot(x,sizenc)
     fill_between(x,sizenc-sizenc_s,sizenc+sizenc_s,alpha=0.5,facecolor='blue',edgecolor='none')
     savefig(path+'/sizenoncodingRNA.pdf')
+    close()
     # size fonctional genes
     figure()
     plot(x,sizefonc)
     fill_between(x,sizefonc-sizefonc_s,sizefonc+sizefonc_s,alpha=0.5,facecolor='blue',edgecolor='none')
     savefig(path+'/sizefonctionalGenes.pdf')
+    close()
     # size non fonctional genes
     figure()
     plot(x,sizenfonc)
     fill_between(x,sizenfonc-sizenfonc_s,sizenfonc+sizenfonc_s,alpha=0.5,facecolor='blue',edgecolor='none')
     savefig(path+'/sizenonfonctionalGenes.pdf')
+    close()
 
 opts, args = getopt.getopt(sys.argv[1:], "s:e:", ["start", "end"])
 start=None
