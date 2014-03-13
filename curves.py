@@ -6,9 +6,40 @@ from matplotlib.pyplot import *
 import sys
 import getopt
 
-def get_stats_exp(path,start,end):
+genomesize=None
+fitness=None
+metabolism=None
+secretion=None
+cRNA=None
+ncRNA=None
+fgenes=None
+nfgenes=None
+sizecRNA=None
+sizencRNA=None
+sizefgenes=None
+sizenfgenes=None
+nbrep=None
+nbgen=None
+
+def load_exp(path,start,end):
+    global genomesize
+    global fitness
+    global metabolism
+    global secretion
+    global cRNA
+    global ncRNA
+    global fgenes
+    global nfgenes
+    global sizecRNA
+    global sizencRNA
+    global sizefgenes
+    global sizenfgenes
+    global nbrep
+    global nbgen
+    
     allrep=[x for x in os.listdir(path) if os.path.isdir(os.path.join(path,x))]
     nbrep=len(allrep)
+    
     if start==None:
         start=0
     if end==None:
@@ -18,6 +49,7 @@ def get_stats_exp(path,start,end):
         nbgen=end-start+1
         nbgeninfile=int(open(path + '/' + allrep[0] + '/last_gener.txt','r').read())+1
         assert(nbgeninfile>=nbgen)
+        
     genomesize=numpy.zeros((nbrep,nbgen))
     fitness=numpy.zeros((nbrep,nbgen))
     metabolism=numpy.zeros((nbrep,nbgen))
@@ -30,6 +62,7 @@ def get_stats_exp(path,start,end):
     sizencRNA=numpy.zeros((nbrep,nbgen))
     sizefgenes=numpy.zeros((nbrep,nbgen))
     sizenfgenes=numpy.zeros((nbrep,nbgen))
+    
     for rep,replicate in enumerate(allrep):
         stat_fitness_glob=path + '/' + replicate + '/stats/stat_fitness_glob.out'
         a=numpy.loadtxt(stat_fitness_glob)
@@ -47,15 +80,50 @@ def get_stats_exp(path,start,end):
         sizencRNA[rep,0:nbgen]=b[start:end+1,4]
         sizefgenes[rep,0:nbgen]=b[start:end+1,7]
         sizenfgenes[rep,0:nbgen]=b[start:end+1,8]
-    return (
-            numpy.mean(genomesize,0),numpy.mean(fitness,0),numpy.mean(metabolism,0),numpy.mean(secretion,0),
-            numpy.mean(cRNA,0),numpy.mean(ncRNA,0),numpy.mean(fgenes,0),numpy.mean(nfgenes,0),numpy.mean(sizecRNA,0),numpy.mean(sizencRNA,0),numpy.mean(sizefgenes,0),numpy.mean(sizenfgenes,0),
-            numpy.std(genomesize,0)/numpy.sqrt(nbrep),numpy.std(fitness,0)/numpy.sqrt(nbrep),numpy.std(metabolism,0)/numpy.sqrt(nbrep),numpy.std(secretion,0)/numpy.sqrt(nbrep),
-            numpy.std(cRNA,0)/numpy.sqrt(nbrep),numpy.std(ncRNA,0)/numpy.sqrt(nbrep),numpy.std(fgenes,0)/numpy.sqrt(nbrep),numpy.std(nfgenes,0)/numpy.sqrt(nbrep),numpy.std(sizecRNA,0)/numpy.sqrt(nbrep),numpy.std(sizencRNA,0)/numpy.sqrt(nbrep),numpy.std(sizefgenes,0)/numpy.sqrt(nbrep),numpy.std(sizenfgenes,0)/numpy.sqrt(nbrep)
-           )
 
-def output_stats(path,start,end):
-    [g,f,m,s,c,nc,fonc,nfonc,sizec,sizenc,sizefonc,sizenfonc,g_s,f_s,m_s,s_s,c_s,nc_s,fonc_s,nfonc_s,sizec_s,sizenc_s,sizefonc_s,sizenfonc_s]=get_stats_exp(path,start,end)
+
+def output_mean_std(path,start,end):
+    global genomesize
+    global fitness
+    global metabolism
+    global secretion
+    global cRNA
+    global ncRNA
+    global fgenes
+    global nfgenes
+    global sizecRNA
+    global sizencRNA
+    global sizefgenes
+    global sizenfgenes
+    global nbrep
+    
+    load_exp(path,start,end)
+    
+    g=numpy.mean(genomesize,0)
+    f=numpy.mean(fitness,0)
+    m=numpy.mean(metabolism,0)
+    s=numpy.mean(secretion,0)
+    c=numpy.mean(cRNA,0)
+    nc=numpy.mean(ncRNA,0)
+    fonc=numpy.mean(fgenes,0)
+    nfonc=numpy.mean(nfgenes,0)
+    sizec=numpy.mean(sizecRNA,0)
+    sizenc=numpy.mean(sizencRNA,0)
+    sizefonc=numpy.mean(sizefgenes,0)
+    sizenfonc=numpy.mean(sizenfgenes,0)
+    g_s=numpy.std(genomesize,0)/numpy.sqrt(nbrep)
+    f_s=numpy.std(fitness,0)/numpy.sqrt(nbrep)
+    m_s=numpy.std(metabolism,0)/numpy.sqrt(nbrep)
+    s_s=numpy.std(secretion,0)/numpy.sqrt(nbrep)
+    c_s=numpy.std(cRNA,0)/numpy.sqrt(nbrep)
+    nc_s=numpy.std(ncRNA,0)/numpy.sqrt(nbrep)
+    fonc_s=numpy.std(fgenes,0)/numpy.sqrt(nbrep)
+    nfonc_s=numpy.std(nfgenes,0)/numpy.sqrt(nbrep)
+    sizec_s=numpy.std(sizecRNA,0)/numpy.sqrt(nbrep)
+    sizenc_s=numpy.std(sizencRNA,0)/numpy.sqrt(nbrep)
+    sizefonc_s=numpy.std(sizefgenes,0)/numpy.sqrt(nbrep)
+    sizenfonc_s=numpy.std(sizenfgenes,0)/numpy.sqrt(nbrep)
+    
     x=None
     if start==None:
         x=numpy.arange(0,len(g),1)
