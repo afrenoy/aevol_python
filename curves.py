@@ -21,7 +21,7 @@ sizenfgenes=None
 nbrep=None
 nbgen=None
 
-def load_exp(path,start,end):
+def load_exp(path,start,end,gu=0):
     global genomesize
     global fitness
     global metabolism
@@ -64,13 +64,23 @@ def load_exp(path,start,end):
     sizenfgenes=numpy.zeros((nbrep,nbgen))
     
     for rep,replicate in enumerate(allrep):
-        stat_fitness_glob=path + '/' + replicate + '/stats/stat_fitness_glob.out'
+        if gu==0:
+            stat_fitness_glob=path + '/' + replicate + '/stats/stat_fitness_glob.out'
+        elif gu==1:
+            stat_fitness_glob=path + '/' + replicate + '/stats/stat_fitness_chromosome_glob.out'
+        elif gu==2:
+            stat_fitness_glob=path + '/' + replicate + '/stats/stat_fitness_plasmids_glob.out'
         a=numpy.loadtxt(stat_fitness_glob)
         genomesize[rep,0:nbgen]=a[start:end+1,3]
         fitness[rep,0:nbgen]=a[start:end+1,2]
         metabolism[rep,0:nbgen]=a[start:end+1,6]
         secretion[rep,0:nbgen]=a[start:end+1,9]
-        stat_genes_glob=path + '/' + replicate + '/stats/stat_genes_glob.out'
+        if gu==0:
+            stat_genes_glob=path + '/' + replicate + '/stats/stat_genes_glob.out'
+        elif gu==1:
+            stat_genes_glob=path + '/' + replicate + '/stats/stat_genes_chromosome_glob.out'
+        elif gu==2:
+            stat_genes_glob=path + '/' + replicate + '/stats/stat_genes_plasmids_glob.out'
         b=numpy.loadtxt(stat_genes_glob)
         cRNA[rep,0:nbgen]=b[start:end+1,1]
         ncRNA[rep,0:nbgen]=b[start:end+1,2]
@@ -82,7 +92,7 @@ def load_exp(path,start,end):
         sizenfgenes[rep,0:nbgen]=b[start:end+1,8]
 
 
-def output_mean_std(path,start,end):
+def output_mean_std(path,start,end,gu=0):
     global genomesize
     global fitness
     global metabolism
@@ -97,7 +107,7 @@ def output_mean_std(path,start,end):
     global sizenfgenes
     global nbrep
     
-    load_exp(path,start,end)
+    load_exp(path,start,end,gu)
     
     g=numpy.mean(genomesize,0)
     f=numpy.mean(fitness,0)
@@ -124,6 +134,13 @@ def output_mean_std(path,start,end):
     sizefonc_s=numpy.std(sizefgenes,0)/numpy.sqrt(nbrep)
     sizenfonc_s=numpy.std(sizenfgenes,0)/numpy.sqrt(nbrep)
     
+    if gu==0:
+        epath=path+'/'
+    elif gu==1:
+        epath=path+'/chr_'
+    elif gu==2:
+        epath=path+'/pla_'
+
     x=None
     if start==None:
         x=numpy.arange(0,len(g),1)
@@ -135,73 +152,73 @@ def output_mean_std(path,start,end):
     figure()
     plot(x,g)
     fill_between(x,g-g_s,g+g_s,alpha=0.5,facecolor='blue',edgecolor='none')
-    savefig(path+'/genomesize.pdf')
+    savefig(epath+'genomesize.pdf')
     close()
     # fitness
     figure()
     plot(x,f)
     fill_between(x,f-f_s,f+f_s,alpha=0.5,facecolor='blue',edgecolor='none')
-    savefig(path+'/fitness.pdf')
+    savefig(epath+'fitness.pdf')
     close()
     # metabolism
     figure()
     plot(x,m)
     fill_between(x,m-m_s,m+m_s,alpha=0.5,facecolor='blue',edgecolor='none')
-    savefig(path+'/metabolism.pdf')
+    savefig(epath+'metabolism.pdf')
     close()
     # secretion
     figure()
     plot(x,s)
     fill_between(x,s-s_s,s+s_s,alpha=0.5,facecolor='blue',edgecolor='none')
-    savefig(path+'/secretion.pdf')
+    savefig(epath+'secretion.pdf')
     close()
     # coding RNA
     figure()
     plot(x,c)
     fill_between(x,c-c_s,c+c_s,alpha=0.5,facecolor='blue',edgecolor='none')
-    savefig(path+'/codingRNA.pdf')
+    savefig(epath+'codingRNA.pdf')
     close()
     # non coding RNA
     figure()
     plot(x,nc)
     fill_between(x,nc-nc_s,nc+nc_s,alpha=0.5,facecolor='blue',edgecolor='none')
-    savefig(path+'/noncodingRNA.pdf')
+    savefig(epath+'noncodingRNA.pdf')
     close()
     # fonctional genes
     figure()
     plot(x,fonc)
     fill_between(x,fonc-fonc_s,fonc+fonc_s,alpha=0.5,facecolor='blue',edgecolor='none')
-    savefig(path+'/fonctionalGenes.pdf')
+    savefig(epath+'fonctionalGenes.pdf')
     close()
     # non fonctional genes
     figure()
     plot(x,nfonc)
     fill_between(x,nfonc-nfonc_s,nfonc+nfonc_s,alpha=0.5,facecolor='blue',edgecolor='none')
-    savefig(path+'/nonfonctionalGenes.pdf')
+    savefig(epath+'nonfonctionalGenes.pdf')
     close()
     # size coding RNA
     figure()
     plot(x,sizec)
     fill_between(x,sizec-sizec_s,sizec+sizec_s,alpha=0.5,facecolor='blue',edgecolor='none')
-    savefig(path+'/sizecodingRNA.pdf')
+    savefig(epath+'sizecodingRNA.pdf')
     close()
     # size non coding RNA
     figure()
     plot(x,sizenc)
     fill_between(x,sizenc-sizenc_s,sizenc+sizenc_s,alpha=0.5,facecolor='blue',edgecolor='none')
-    savefig(path+'/sizenoncodingRNA.pdf')
+    savefig(epath+'sizenoncodingRNA.pdf')
     close()
     # size fonctional genes
     figure()
     plot(x,sizefonc)
     fill_between(x,sizefonc-sizefonc_s,sizefonc+sizefonc_s,alpha=0.5,facecolor='blue',edgecolor='none')
-    savefig(path+'/sizefonctionalGenes.pdf')
+    savefig(epath+'sizefonctionalGenes.pdf')
     close()
     # size non fonctional genes
     figure()
     plot(x,sizenfonc)
     fill_between(x,sizenfonc-sizenfonc_s,sizenfonc+sizenfonc_s,alpha=0.5,facecolor='blue',edgecolor='none')
-    savefig(path+'/sizenonfonctionalGenes.pdf')
+    savefig(epath+'sizenonfonctionalGenes.pdf')
     close()
 
 def output_all(path,start,end):
@@ -298,16 +315,29 @@ def output_prctile(path,start,end):
         x=numpy.arange(start,end+1,1)
         
         
-opts, args = getopt.getopt(sys.argv[1:], "s:e:", ["start", "end"])
+opts, args = getopt.getopt(sys.argv[1:], "s:e:g:a", ["start", "end"])
 start=None
 end=None
+all=False
+gus=set([])
 
 for o, a in opts:
     if o=='-s':
         start=int(a)
     elif o=='-e':
         end=int(a)
-    
+    elif o=='-a':
+        all=True
+    elif o=='-g':
+        gus.add(int(a))
+
+if len(gus)==0:
+    gus.add(0)
+
 for arg in args:
-    output_all(arg,start,end)
-    #output_mean_std(arg,start,end)
+    if all==True:
+        output_all(arg,start,end)
+    else:
+        for gu in gus:
+            output_mean_std(arg,start,end,gu)
+
