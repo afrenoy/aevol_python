@@ -221,7 +221,7 @@ def output_mean_std(path,start,end,gu=0):
     savefig(epath+'sizenonfonctionalGenes.pdf')
     close()
 
-def output_all(path,start,end):
+def output_all(path,start,end,gu=0):
     global genomesize
     global fitness
     global metabolism
@@ -235,7 +235,7 @@ def output_all(path,start,end):
     global sizefgenes
     global sizenfgenes
     
-    load_exp(path,start,end)
+    load_exp(path,start,end,gu)
     x=None
     if start==None:
         x=numpy.arange(0,numpy.shape(genomesize)[1],1)
@@ -243,65 +243,73 @@ def output_all(path,start,end):
         x=numpy.arange(start,start+numpy.shape(genomesize)[1],1)
     else:
         x=numpy.arange(start,end+1,1)
+        
+    if gu==0:
+        epath=path+'/'
+    elif gu==1:
+        epath=path+'/chr_'
+    elif gu==2:
+        epath=path+'/pla_'
+    
     # genome size
     figure()
     plot(x,genomesize.T)
-    savefig(path+'/genomesize_all.pdf')
+    savefig(epath+'genomesize_all.pdf')
     close()
     # fitness
     figure()
     plot(x,fitness.T)
-    savefig(path+'/fitness_all.pdf')
+    savefig(epath+'fitness_all.pdf')
     close()
     # metabolism
     figure()
     plot(x,metabolism.T)
-    savefig(path+'/metabolism_all.pdf')
+    savefig(epath+'metabolism_all.pdf')
     close()
     # secretion
     figure()
     plot(x,secretion.T)
-    savefig(path+'/secretion_all.pdf')
+    savefig(epath+'secretion_all.pdf')
     close()
     # coding RNA
     figure()
     plot(x,cRNA.T)
-    savefig(path+'/codingRNA_all.pdf')
+    savefig(epath+'codingRNA_all.pdf')
     close()
     # non coding RNA
     figure()
     plot(x,ncRNA.T)
-    savefig(path+'/noncodingRNA_all.pdf')
+    savefig(epath+'noncodingRNA_all.pdf')
     close()
     # fonctional genes
     figure()
     plot(x,fgenes.T)
-    savefig(path+'/fonctionalGenes_all.pdf')
+    savefig(epath+'fonctionalGenes_all.pdf')
     close()
     # non fonctional genes
     figure()
     plot(x,nfgenes.T)
-    savefig(path+'/nonfonctionalGenes_all.pdf')
+    savefig(epath+'nonfonctionalGenes_all.pdf')
     close()
     # size coding RNA
     figure()
     plot(x,sizecRNA.T)
-    savefig(path+'/sizecodingRNA_all.pdf')
+    savefig(epath+'sizecodingRNA_all.pdf')
     close()
     # size non coding RNA
     figure()
     plot(x,sizencRNA.T)
-    savefig(path+'/sizenoncodingRNA_all.pdf')
+    savefig(epath+'sizenoncodingRNA_all.pdf')
     close()
     # size fonctional genes
     figure()
     plot(x,sizefgenes.T)
-    savefig(path+'/sizefonctionalGenes_all.pdf')
+    savefig(epath+'sizefonctionalGenes_all.pdf')
     close()
     # size non fonctional genes
     figure()
     plot(x,sizenfgenes.T)
-    savefig(path+'/sizenonfonctionalGenes_all.pdf')
+    savefig(epath+'sizenonfonctionalGenes_all.pdf')
     close()
 
 def output_prctile(path,start,end):
@@ -336,7 +344,8 @@ if len(gus)==0:
 
 for arg in args:
     if all==True:
-        output_all(arg,start,end)
+        for gu in gus:
+            output_all(arg,start,end,gu)
     else:
         for gu in gus:
             output_mean_std(arg,start,end,gu)
