@@ -92,7 +92,7 @@ def load_exp(path,start,end,gu=0):
         sizenfgenes[rep,0:nbgen]=b[start:end+1,8]
 
 
-def output_mean_std(path,start,end,gu=0):
+def output_mean_std(path,start,end,gu=0,computeonly=False):
     global genomesize
     global fitness
     global metabolism
@@ -134,13 +134,6 @@ def output_mean_std(path,start,end,gu=0):
     sizefonc_s=numpy.std(sizefgenes,0)/numpy.sqrt(nbrep)
     sizenfonc_s=numpy.std(sizenfgenes,0)/numpy.sqrt(nbrep)
     
-    if gu==0:
-        epath=path+'/'
-    elif gu==1:
-        epath=path+'/chr_'
-    elif gu==2:
-        epath=path+'/pla_'
-
     x=None
     if start==None:
         x=numpy.arange(0,len(g),1)
@@ -148,6 +141,17 @@ def output_mean_std(path,start,end,gu=0):
         x=numpy.arange(start,start+len(g),1)
     else:
         x=numpy.arange(start,end+1,1)
+    
+    if (computeonly):
+        return (x,{'genomesize':(g,g_s),'fitness':(f,f_s),'metabolism':(m,m_s),'secretion':(s,s_s)})
+
+    if gu==0:
+        epath=path+'/'
+    elif gu==1:
+        epath=path+'/chr_'
+    elif gu==2:
+        epath=path+'/pla_'
+
     # genome size
     figure()
     plot(x,g)
@@ -322,31 +326,59 @@ def output_prctile(path,start,end):
     else:
         x=numpy.arange(start,end+1,1)
         
-        
-opts, args = getopt.getopt(sys.argv[1:], "s:e:g:a", ["start", "end"])
+
+def print_help():
+    print "Help available on http://github.com/frenoy/aevol_python"
+
+opts, args = getopt.getopt(sys.argv[1:], "s:e:g:cah", ["start", "end","genunit","compare","all","help"])
 start=None
 end=None
 all=False
 gus=set([])
+compare=False
 
 for o, a in opts:
-    if o=='-s':
+    if o=='-s' or o=='--start':
         start=int(a)
-    elif o=='-e':
+    elif o=='-e' or o=='--end':
         end=int(a)
-    elif o=='-a':
+    elif o=='-c' or o=='--compare':
+        compare=True
+    elif o=='-a' or o=='--all':
         all=True
-    elif o=='-g':
+    elif o=='-g' or o=='--genunit':
         gus.add(int(a))
+    elif o=='-h' or o=='--help':
+        print_help()
+        exit()
 
 if len(gus)==0:
     gus.add(0)
 
-for arg in args:
-    if all==True:
-        for gu in gus:
-            output_all(arg,start,end,gu)
-    else:
-        for gu in gus:
-            output_mean_std(arg,start,end,gu)
+if compare:
+    epath=os.path.dirname(args[0])
+    if epath=='':
+        epath=os.getcwd()
+    for gu in gus:
+        r=dict()
+        for arg in args:
+            (x,r[arg])=output_mean_std(arg,start,end,gu,True)
+        for feature in r[args[0]].keys():
+            figure()
+            for arg in args:
+                data=r[arg][feature]
+                h=plot(x,r[arg][feature][0])
+                color=h[0].get_color()
+                fill_between(x,data[0]-data[1],data[0]+data[1],alpha=0.5,facecolor=color,edgecolor='none')
+            legend(args)
+            savefig(epath+'/'+feature+'.pdf')
+            close()
+else:
+    for arg in args:
+        if all==True:
+            for gu in gus:
+                output_all(arg,start,end,gu)
+        else:
+            for gu in gus:
+                output_mean_std(arg,start,end,gu)
 
