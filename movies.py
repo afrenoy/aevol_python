@@ -6,7 +6,8 @@ import sys
 import getopt
 import png
 
-def treat_generation(gfile,name,num,xsize,ysize,minv=0.,maxv=1.):
+def treat_generation(gfile,name,num,xsize,ysize,minv=0.,maxv=1.,colors=(0,255,0)):
+    (rscale,gscale,bscale)=colors
     table=numpy.zeros((xsize,ysize))
     f = open(gfile,'r')
     for line in f:
@@ -19,7 +20,7 @@ def treat_generation(gfile,name,num,xsize,ysize,minv=0.,maxv=1.):
                 value=maxv
             table[int(x),int(y)]=value
     f.close()
-    pix=[tuple(reduce(lambda x,y:x+y, [(int((j-minv)/(maxv-minv)*255),0,0) for j in i])) for i in table]
+    pix=[tuple(reduce(lambda x,y:x+y, [(int((j-minv)/(maxv-minv)*rscale),int((j-minv)/(maxv-minv)*gscale),int((j-minv)/(maxv-minv)*bscale)) for j in i])) for i in table]
 
     namepng='_%s%04d.png'%(name,num)
     pngfile=open(namepng,'wb')
