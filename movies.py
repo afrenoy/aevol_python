@@ -5,6 +5,7 @@ import numpy
 import sys
 import getopt
 import png
+import glob
 
 def treat_generation(gfile,name,num,xsize,ysize,minv=0.,maxv=1.,colors=(0,255,0)):
     (rscale,gscale,bscale)=colors
@@ -87,7 +88,12 @@ if not inputname:
     print 'Error: you must specifiy option -i (--inputname)'
     exit(-1)
 
-for arg in args:
+if len(glob.glob("_"+inputname+"*.png"))>0:
+    print 'Warning: about to overwrite existing png files. 5 seconds left to abort ...'
+    import time
+    time.sleep(5)
+
+for arg in args: # If several folders are given as arguments treat all of them separatly
     first=True
     for filename in os.listdir(arg+'/stats/dump/'):
         if filename.startswith(inputname):
@@ -111,7 +117,7 @@ for arg in args:
             if (start and ngen<start) or (end and ngen>end): # do not treat generations that are not in given interval if any
                 continue
             treat_generation(arg+'/stats/dump/'+inputname+'_%04d.out'%ngen,inputname,ngen,mx+1,my+1,minvalue,maxvalue,colors)
-    os.system("ffmpeg -pattern_type glob -i '*.png' -r 6  -vcodec png -s "+str((mx+1)*patchsize)+"x"+str((my+1)*patchsize)+" -sws_flags neighbor -sws_dither none " + arg + '/' + inputname + ".mov")
+    os.system("ffmpeg -pattern_type glob -i '_" + inputname + "*.png' -r 6  -vcodec png -s "+str((mx+1)*patchsize)+"x"+str((my+1)*patchsize)+" -sws_flags neighbor -sws_dither none " + arg + '/' + inputname + ".mov")
     if not keepinter:
-        os.system("rm *.png")
+        os.system('rm _' + inputname + '*.png')
 
