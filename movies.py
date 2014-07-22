@@ -28,12 +28,29 @@ def treat_generation(gfile,name,num,xsize,ysize,minv=0.,maxv=1.,colors=(0,255,0)
     wr.write(pngfile,pix)
     pngfile.close()
         
-opts, args = getopt.getopt(sys.argv[1:], "i:s:e:p:", ["inputname","start","end","patchsize"])
+def printhelp():
+    name=os.path.basename(sys.argv[0])
+    print name +': a script to produce a movie from an aevol simulation with dumps activated.'
+    print 'You need to have ffmpeg installed and in your path.'
+    print 'Usage:'
+    print '\t' + name + ' -i inputname [-s firstgen] [-e lastgen] [-p patchsize] [-m minvalue] [-M maxvalue] [-c color] [-k]'
+    print 'or'
+    print '\t' + name + ' -h'
+    print 'See source code for a description of parameters and default values'
+    print 'License: DWTFYWWT'
+    exit(0)
+
+
+opts, args = getopt.getopt(sys.argv[1:], "i:s:e:p:m:M:c:kh", ["inputname","start","end","patchsize","minvalue","maxvalue","color","keep","help"])
 
 start=None
 end=None
 inputname=None
 patchsize=20
+minvalue=0.
+maxvalue=1.
+colors=(0,255,0)
+keepinter=False
 
 for o, a in opts:
     if o=='-i' or o=='--inputname': # Name of the output to treat (basename of the matching dump files, for example 'fitness_metabolic'). 
@@ -44,6 +61,26 @@ for o, a in opts:
         end=int(a)
     elif o=='-p' or o=='--patchsize': # (optional) Size of each location in pixels (default 20)
         patchsize=int(a)
+    elif o=='-m' or o=='--minvalue': # (optional) Value that will be scaled to 0 (black)
+        minvalue=float(a)
+    elif o=='-M' or o=='--maxvalue': # (optional) Value that will be scaled to 1 (full color specified by -c option)
+        maxvalue=float(a)
+    elif o=='-c' or o=='--color': # (optional) Color to give to maxvalue
+        if (a=='red'):
+            colors=(255,0,0)
+        elif (a=='green'):
+            colors=(0,255,0)
+        elif (a=='blue'):
+            colors=(0,0,255)
+        elif len(a.split())==3:
+            colors=map(lambda x: int(x), a.split())
+        else:
+            print 'Error: unrecognized argument given to -c option'
+            exit(-1)
+    elif o=='-k' or o=='--keep':
+        keepinter=True
+    elif o=='-h' or o=='--help':
+        printhelp()
 
 if not inputname:
     print 'Error: you must specifiy option -i (--inputname)'
@@ -72,7 +109,8 @@ for arg in args:
                 print "Detected x size: %d, detected y size: %d"%(mx+1,my+1)
             if (start and ngen<start) or (end and ngen>end): # do not treat generations that are not in given interval if any
                 continue
-            treat_generation(arg+'/stats/dump/'+inputname+'_%04d.out'%ngen,inputname,ngen,mx+1,my+1)
+            treat_generation(arg+'/stats/dump/'+inputname+'_%04d.out'%ngen,inputname,ngen,mx+1,my+1,minvalue,maxvalue,colors)
     os.system("ffmpeg -pattern_type glob -i '*.png' -r 6  -vcodec png -s "+str((mx+1)*patchsize)+"x"+str((my+1)*patchsize)+" -sws_flags neighbor -sws_dither none " + arg + '/' + inputname + ".mov")
-    os.system("rm *.png")
+    if not keepinter:
+        os.system("rm *.png")
 
