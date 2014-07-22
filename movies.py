@@ -36,7 +36,9 @@ def printhelp():
     print '\t' + name + ' -i inputname [-s firstgen] [-e lastgen] [-p patchsize] [-m minvalue] [-M maxvalue] [-c color] [-k]'
     print 'or'
     print '\t' + name + ' -h'
-    print 'See source code for a description of parameters and default values'
+    print 'Example:'
+    print '\t' + " ./movies.py -i fitness_metabolic -p 40 -c '255 255 255' -m 0 -M 1 -s 30 -e 100 ~/myaevolsimulation"
+    print 'See source code for a ful description of parameters and default values'
     exit(0)
 
 
