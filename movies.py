@@ -37,7 +37,6 @@ def printhelp():
     print 'or'
     print '\t' + name + ' -h'
     print 'See source code for a description of parameters and default values'
-    print 'License: DWTFYWWT'
     exit(0)
 
 
