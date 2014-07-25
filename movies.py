@@ -99,6 +99,7 @@ warned=False
 
 for arg in args: # If several folders are given as arguments treat all of them separatly
     first=True
+    todelete=[]
     for filename in os.listdir(arg+'/stats/dump/'):
         if filename.startswith(inputname):
             ngen=int(filename.split('_').pop().split('.')[0])
@@ -126,6 +127,7 @@ for arg in args: # If several folders are given as arguments treat all of them s
                 continue
             namepng='_%s%06d.png'%(inputname,ngen)
             if not os.path.exists(namepng) or overwrite:
+                todelete.append(namepng)
                 treat_generation(arg+'/stats/dump/'+inputname+'_%06d.out'%ngen,namepng,mx+1,my+1,minvalue,maxvalue,colors)
             elif not warned:
                 print ''
@@ -138,5 +140,6 @@ for arg in args: # If several folders are given as arguments treat all of them s
         end=biggestgen
     os.system("ffmpeg -start_number " + str(start) + " -i _" + inputname + "%06d.png -vframes " + str(end-start) + " -r 6  -vcodec png -s "+str((mx+1)*patchsize)+"x"+str((my+1)*patchsize)+" -sws_flags neighbor -sws_dither none " + arg + '/' + inputname + ".mov")
     if not keepinter:
-        os.system('rm _' + inputname + '*.png')
+        for f in todelete:
+            os.remove(f)
 
