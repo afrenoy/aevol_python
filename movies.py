@@ -34,7 +34,7 @@ def printhelp():
     print name +': a script to produce a movie from an aevol simulation with dumps activated.'
     print 'You need to have ffmpeg installed and in your path.'
     print 'Usage:'
-    print '\t' + name + ' -i inputname [-s firstgen] [-e lastgen] [-p patchsize] [-m minvalue] [-M maxvalue] [-c color] [-k]'
+    print '\t' + name + ' -i inputname [-s firstgen] [-e lastgen] [-p patchsize] [-m minvalue] [-M maxvalue] [-c color] [-k] sim1 sim2 .. simN'
     print 'or'
     print '\t' + name + ' -h'
     print 'Example:'
