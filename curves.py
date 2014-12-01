@@ -330,12 +330,13 @@ def output_prctile(path,start,end):
 def print_help():
     print "Help available on http://github.com/frenoy/aevol_python"
 
-opts, args = getopt.getopt(sys.argv[1:], "s:e:g:cah", ["start", "end","genunit","compare","all","help"])
+opts, args = getopt.getopt(sys.argv[1:], "s:e:g:cao:h", ["start", "end","genunit","compare","all","offset","help"])
 start=None
 end=None
 all=False
 gus=set([])
 compare=False
+offsets=[]
 
 for o, a in opts:
     if o=='-s' or o=='--start':
@@ -348,6 +349,8 @@ for o, a in opts:
         all=True
     elif o=='-g' or o=='--genunit':
         gus.add(int(a))
+    elif o=='-o' or o=='--offset':
+        offsets.append(int(a))
     elif o=='-h' or o=='--help':
         print_help()
         exit()
@@ -356,13 +359,12 @@ if len(gus)==0:
     gus.add(0)
 
 if compare:
-    epath=os.path.dirname(args[0])
-    if epath=='':
-        epath=os.getcwd()
+    epath=os.getcwd()
+    #epath=os.path.dirname(args[0])
     for gu in gus:
         r=dict()
-        for arg in args:
-            (x,r[arg])=output_mean_std(arg,start,end,gu,True)
+        for (i,arg) in enumerate(args):
+            (x,r[arg])=output_mean_std(arg,start+offsets[i],end+offsets[i],gu,True)
         for feature in r[args[0]].keys():
             figure()
             for arg in args:
@@ -370,7 +372,11 @@ if compare:
                 h=plot(x,r[arg][feature][0])
                 color=h[0].get_color()
                 fill_between(x,data[0]-data[1],data[0]+data[1],alpha=0.5,facecolor=color,edgecolor='none')
-            legend(args)
+            foldernames=[os.path.basename(arg) for arg in args]
+            foldernames=['M-S 5k','M-S 420k','N-S']
+            legend(foldernames,loc='upper left')
+            xlabel('Generations')
+            ylabel('Average secretion')
             savefig(epath+'/'+feature+'.pdf')
             close()
 else:
