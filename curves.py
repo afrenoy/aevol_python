@@ -135,6 +135,7 @@ for o, a in opts:
         print_help()
         exit()
 
+
 if len(gus)==0:
     gus.add(0)
 
@@ -143,10 +144,15 @@ if compare:
     #epath=os.path.dirname(args[0])
     for gu in gus:
         r=dict()
+        if offsets:
+            if not start or not end:
+                print "Error: --offset can only be used with --start and --end"
+                exit(-1)
+        else:
+            offsets=[0 for i in args]
         for (i,arg) in enumerate(args):
             e=experiment()
-            (x,r[args])=e.output_mean_std(arg,start=start+offsets[i],end=end+offsets[i],gu=gu,computeonly=True)
-            #(x,r[arg])=output_mean_std(arg,start+offsets[i],end+offsets[i],gu,True)
+            (x,r[arg])=e.output_mean_std(arg,start=(start+offsets[i] if (start and offsets[i]) else start),end=(end+offsets[i] if (end and offsets[i]) else end),gu=gu,computeonly=True)
         for feature in r[args[0]].keys():
             figure()
             for arg in args:
@@ -155,7 +161,6 @@ if compare:
                 color=h[0].get_color()
                 fill_between(x,data[0]-data[1],data[0]+data[1],alpha=0.5,facecolor=color,edgecolor='none')
             foldernames=[os.path.basename(arg) for arg in args]
-            #foldernames=['M-S 5k','M-S 420k','N-S']
             legend(foldernames,loc='upper left')
             xlabel('Generations')
             ylabel('Average secretion')
